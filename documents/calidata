@@ -1,0 +1,682 @@
+=== Eye-in-Hand Calibration ===
+Camera: realsense_d405  |  Mode: auto (50 preset poses)  |  Solver: TSAI
+ArUco size: 10cm  |  Output: /home/enderplum/rebot_grasp/config/calibration/realsense_d405/hand_eye.npz
+
+[RealsenseCamera] Ready (1280x720, depth_scale=0.000100 m/unit)
+Warming up camera... ready
+
+[Robot] Auto mode ready, control mode: posvel. 50 preset poses will be traversed.
+[Controls] Auto traversal and capture  c/q=stop and solve  pos=print current TCP pose
+
+
+[Auto] Pose 1/50: pos=(0.28,-0.16,0.26) rpy=(-0.30,0.80,-0.90)
+[Auto] Pose 1/50 timed out without ArUco, skipping
+
+[Auto] Pose 2/50: pos=(0.28,-0.08,0.26) rpy=(0.30,0.80,-0.45)
+
+[Sample 1] auto pose 2/50
+  ArUco: x=-0.255 y=-0.052 z=0.430 m
+  End effector (FK): x=0.2804 y=-0.0803 z=0.2604 m
+  [OK] Recorded, total samples: 1
+
+[Auto] Pose 3/50: pos=(0.28,0.00,0.26) rpy=(-0.30,0.80,0.00)
+[Auto] Pose 3/50 timed out without ArUco, skipping
+
+[Auto] Pose 4/50: pos=(0.28,0.08,0.26) rpy=(0.30,0.80,0.45)
+[Auto] Pose 4/50 timed out without ArUco, skipping
+
+[Auto] Pose 5/50: pos=(0.28,0.16,0.26) rpy=(-0.30,0.80,0.90)
+[Auto] Pose 5/50 timed out without ArUco, skipping
+
+[Auto] Pose 6/50: pos=(0.27,-0.16,0.31) rpy=(0.30,0.55,-0.90)
+[Auto] Pose 6/50 timed out without ArUco, skipping
+
+[Auto] Pose 7/50: pos=(0.27,-0.08,0.31) rpy=(-0.30,0.55,-0.45)
+
+[Sample 2] auto pose 7/50
+  ArUco: x=-0.255 y=-0.102 z=0.455 m
+  End effector (FK): x=0.2695 y=-0.0798 z=0.3091 m
+  [OK] Recorded, total samples: 2
+
+[Auto] Pose 8/50: pos=(0.27,0.00,0.31) rpy=(0.30,0.55,0.00)
+
+[Sample 3] auto pose 8/50
+  ArUco: x=-0.015 y=-0.067 z=0.541 m
+  End effector (FK): x=0.2706 y=-0.0000 z=0.3111 m
+  [OK] Recorded, total samples: 3
+
+[Auto] Pose 9/50: pos=(0.27,0.08,0.31) rpy=(-0.30,0.55,0.45)
+
+[Sample 4] auto pose 9/50
+  ArUco: x=0.199 y=0.021 z=0.514 m
+  End effector (FK): x=0.2701 y=0.0797 z=0.3099 m
+  [OK] Recorded, total samples: 4
+
+[Auto] Pose 10/50: pos=(0.27,0.16,0.31) rpy=(0.30,0.55,0.90)
+[Auto] Pose 10/50 timed out without ArUco, skipping
+
+[Auto] Pose 11/50: pos=(0.26,-0.14,0.34) rpy=(-0.40,0.35,-0.80)
+[Auto] Pose 11/50 timed out without ArUco, skipping
+
+[Auto] Pose 12/50: pos=(0.26,0.00,0.34) rpy=(0.40,0.35,0.00)
+
+[Sample 5] auto pose 12/50
+  ArUco: x=0.032 y=0.035 z=0.576 m
+  End effector (FK): x=0.2600 y=-0.0003 z=0.3399 m
+  [OK] Recorded, total samples: 5
+
+[Auto] Pose 13/50: pos=(0.26,0.14,0.34) rpy=(-0.40,0.35,0.80)
+[Auto] Pose 13/50 timed out without ArUco, skipping
+
+[Auto] Pose 14/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,0.00)
+
+[Sample 6] auto pose 14/50
+  ArUco: x=-0.009 y=-0.066 z=0.434 m
+  End effector (FK): x=0.3696 y=0.0002 z=0.2697 m
+  [OK] Recorded, total samples: 6
+
+[Auto] Pose 15/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,1.00)
+
+[Sample 7] auto pose 15/50
+  ArUco: x=0.259 y=0.026 z=0.355 m
+  End effector (FK): x=0.3687 y=0.0005 z=0.2695 m
+  [OK] Recorded, total samples: 7
+
+[Auto] Pose 16/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,-1.00)
+
+[Sample 8] auto pose 16/50
+  ArUco: x=-0.241 y=0.082 z=0.360 m
+  End effector (FK): x=0.3688 y=-0.0013 z=0.2705 m
+  [OK] Recorded, total samples: 8
+
+[Auto] Pose 17/50: pos=(0.37,0.08,0.27) rpy=(0.50,0.65,0.50)
+
+[Sample 9] auto pose 17/50
+  ArUco: x=0.194 y=-0.100 z=0.372 m
+  End effector (FK): x=0.3700 y=0.0808 z=0.2703 m
+  [OK] Recorded, total samples: 9
+
+[Auto] Pose 18/50: pos=(0.37,-0.08,0.27) rpy=(-0.50,0.65,-0.50)
+
+[Sample 10] auto pose 18/50
+  ArUco: x=-0.206 y=-0.113 z=0.353 m
+  End effector (FK): x=0.3698 y=-0.0804 z=0.2698 m
+  [OK] Recorded, total samples: 10
+
+[Auto] Pose 19/50: pos=(0.33,0.18,0.27) rpy=(0.50,0.50,0.55)
+[Auto] Pose 19/50 timed out without ArUco, skipping
+
+[Auto] Pose 20/50: pos=(0.33,-0.18,0.27) rpy=(-0.50,0.50,-0.55)
+[Auto] Pose 20/50 timed out without ArUco, skipping
+
+[Auto] Pose 21/50: pos=(0.20,0.22,0.28) rpy=(0.60,0.40,0.70)
+[Auto] Pose 21/50 timed out without ArUco, skipping
+
+[Auto] Pose 22/50: pos=(0.20,-0.22,0.28) rpy=(-0.60,0.40,-0.70)
+[Auto] Pose 22/50 timed out without ArUco, skipping
+
+[Auto] Pose 23/50: pos=(0.24,-0.20,0.31) rpy=(0.70,0.45,-1.00)
+[Auto] Pose 23/50 timed out without ArUco, skipping
+
+[Auto] Pose 24/50: pos=(0.24,0.20,0.31) rpy=(-0.70,0.45,1.00)
+[Auto] Pose 24/50 timed out without ArUco, skipping
+
+[Auto] Pose 25/50: pos=(0.25,-0.15,0.29) rpy=(-0.60,0.62,-0.50)
+[Auto] Pose 25/50 timed out without ArUco, skipping
+
+[Auto] Pose 26/50: pos=(0.25,0.15,0.29) rpy=(0.60,0.62,0.50)
+[Auto] Pose 26/50 timed out without ArUco, skipping
+
+[Auto] Pose 27/50: pos=(0.21,-0.09,0.40) rpy=(-0.40,0.25,-0.60)
+[Auto] Pose 27/50 timed out without ArUco, skipping
+
+[Auto] Pose 28/50: pos=(0.21,0.00,0.40) rpy=(0.40,0.25,0.00)
+
+[Sample 11] auto pose 28/50
+  ArUco: x=0.066 y=0.106 z=0.645 m
+  End effector (FK): x=0.2101 y=0.0004 z=0.4004 m
+  [OK] Recorded, total samples: 11
+
+[Auto] Pose 29/50: pos=(0.21,0.09,0.40) rpy=(-0.40,0.25,0.60)
+[Auto] Pose 29/50 timed out without ArUco, skipping
+
+[Auto] Pose 30/50: pos=(0.20,-0.09,0.40) rpy=(0.40,0.28,-0.60)
+[Auto] Pose 30/50 timed out without ArUco, skipping
+
+[Auto] Pose 31/50: pos=(0.20,0.09,0.40) rpy=(-0.40,0.28,0.60)
+[Auto] Pose 31/50 timed out without ArUco, skipping
+
+[Auto] Pose 32/50: pos=(0.30,-0.10,0.24) rpy=(0.40,0.70,-0.70)
+
+[Sample 12] auto pose 32/50
+  ArUco: x=-0.280 y=0.096 z=0.388 m
+  End effector (FK): x=0.2997 y=-0.1000 z=0.2404 m
+  [OK] Recorded, total samples: 12
+
+[Auto] Pose 33/50: pos=(0.30,0.00,0.24) rpy=(0.00,0.75,0.00)
+
+[Sample 13] auto pose 33/50
+  ArUco: x=-0.014 y=-0.174 z=0.432 m
+  End effector (FK): x=0.3003 y=-0.0003 z=0.2400 m
+  [OK] Recorded, total samples: 13
+
+[Auto] Pose 34/50: pos=(0.30,0.10,0.24) rpy=(-0.40,0.70,0.70)
+
+[Sample 14] auto pose 34/50
+  ArUco: x=0.278 y=0.059 z=0.399 m
+  End effector (FK): x=0.3000 y=0.0998 z=0.2399 m
+  [OK] Recorded, total samples: 14
+
+[Auto] Pose 35/50: pos=(0.26,0.12,0.30) rpy=(0.80,0.50,0.30)
+
+[Sample 15] auto pose 35/50
+  ArUco: x=0.186 y=-0.165 z=0.479 m
+  End effector (FK): x=0.2602 y=0.1194 z=0.2997 m
+  [OK] Recorded, total samples: 15  will solve automatically on finish
+
+[Auto] Pose 36/50: pos=(0.26,-0.12,0.30) rpy=(-0.80,0.50,-0.30)
+[Auto] Pose 36/50 timed out without ArUco, skipping
+
+[Auto] Pose 37/50: pos=(0.29,-0.10,0.28) rpy=(0.90,0.60,-0.40)
+
+[Sample 16] auto pose 37/50
+  ArUco: x=-0.134 y=0.138 z=0.497 m
+  End effector (FK): x=0.2900 y=-0.1002 z=0.2802 m
+  [OK] Recorded, total samples: 16  will solve automatically on finish
+
+[Auto] Pose 38/50: pos=(0.29,0.10,0.28) rpy=(-0.90,0.60,0.40)
+[Auto] Pose 38/50 timed out without ArUco, skipping
+
+[Auto] Pose 39/50: pos=(0.28,-0.18,0.30) rpy=(0.85,0.55,-0.80)
+[Auto] Pose 39/50 timed out without ArUco, skipping
+
+[Auto] Pose 40/50: pos=(0.28,0.18,0.30) rpy=(-0.85,0.55,0.80)
+[Auto] Pose 40/50 timed out without ArUco, skipping
+
+[Auto] Pose 41/50: pos=(0.35,-0.12,0.30) rpy=(0.60,0.58,-0.70)
+[Auto] Pose 41/50 timed out without ArUco, skipping
+
+[Auto] Pose 42/50: pos=(0.35,0.12,0.30) rpy=(-0.60,0.58,0.70)
+[Auto] Pose 42/50 timed out without ArUco, skipping
+
+[Auto] Pose 43/50: pos=(0.34,-0.06,0.28) rpy=(0.40,0.72,0.80)
+
+[Sample 17] auto pose 43/50
+  ArUco: x=0.181 y=-0.143 z=0.400 m
+  End effector (FK): x=0.3404 y=-0.0594 z=0.2807 m
+  [OK] Recorded, total samples: 17  will solve automatically on finish
+
+[Auto] Pose 44/50: pos=(0.34,0.06,0.28) rpy=(-0.40,0.72,-0.80)
+
+[Sample 18] auto pose 44/50
+  ArUco: x=-0.189 y=-0.093 z=0.412 m
+  End effector (FK): x=0.3395 y=0.0589 z=0.2803 m
+  [OK] Recorded, total samples: 18  will solve automatically on finish
+
+[Auto] Pose 45/50: pos=(0.22,-0.14,0.38) rpy=(0.75,0.32,-0.70)
+[Auto] Pose 45/50 timed out without ArUco, skipping
+
+[Auto] Pose 46/50: pos=(0.22,0.14,0.38) rpy=(-0.75,0.32,0.70)
+[Auto] Pose 46/50 timed out without ArUco, skipping
+
+[Auto] Pose 47/50: pos=(0.31,0.20,0.27) rpy=(0.30,0.68,0.95)
+[Auto] Pose 47/50 timed out without ArUco, skipping
+
+[Auto] Pose 48/50: pos=(0.31,-0.20,0.27) rpy=(-0.30,0.68,-0.95)
+[Auto] Pose 48/50 timed out without ArUco, skipping
+
+[Auto] Pose 49/50: pos=(0.30,0.05,0.32) rpy=(0.75,0.42,0.65)
+
+[Sample 19] auto pose 49/50
+  ArUco: x=0.276 y=-0.123 z=0.410 m
+  End effector (FK): x=0.3004 y=0.0501 z=0.3206 m
+  [OK] Recorded, total samples: 19  will solve automatically on finish
+
+[Auto] Pose 50/50: pos=(0.30,-0.05,0.32) rpy=(-0.75,0.42,-0.65)
+[Auto] Pose 50/50 timed out without ArUco, skipping
+
+[Auto] All preset poses completed
+[Robot] Homing and disconnecting...
+
+[Finish] auto traversal completed
+[Result] Solving with 19 samples...
+[Result] T_cam2gripper translation: x=-0.0812 y=0.0055 z=0.0679 m
+[Result] Rotation matrix:
+[[ 0.00849179 -0.26050804  0.96543433]
+ [-0.99972678  0.01881428  0.01387017]
+ [-0.02177724 -0.96528834 -0.2602771 ]]
+[Result] [OK] Saved to /home/enderplum/rebot_grasp/config/calibration/realsense_d405/hand_eye.npz
+
+[Auto] Pose 1/50: pos=(0.28,-0.16,0.26) rpy=(-0.30,0.80,-0.90)
+[Auto] Pose 1/50 timed out without ArUco, skipping
+
+[Auto] Pose 2/50: pos=(0.28,-0.08,0.26) rpy=(0.30,0.80,-0.45)
+
+[Sample 1] auto pose 2/50
+  ArUco: x=-0.223 y=0.104 z=0.385 m
+  End effector (FK): x=0.2804 y=-0.0803 z=0.2604 m
+  [OK] Recorded, total samples: 1
+
+[Auto] Pose 3/50: pos=(0.28,0.00,0.26) rpy=(-0.30,0.80,0.00)
+
+[Sample 2] auto pose 3/50
+  ArUco: x=-0.076 y=-0.089 z=0.405 m
+  End effector (FK): x=0.2796 y=0.0003 z=0.2596 m
+  [OK] Recorded, total samples: 2
+
+[Auto] Pose 4/50: pos=(0.28,0.08,0.26) rpy=(0.30,0.80,0.45)
+
+[Sample 3] auto pose 4/50
+  ArUco: x=0.096 y=-0.062 z=0.397 m
+  End effector (FK): x=0.2804 y=0.0798 z=0.2603 m
+  [OK] Recorded, total samples: 3
+
+[Auto] Pose 5/50: pos=(0.28,0.16,0.26) rpy=(-0.30,0.80,0.90)
+[Auto] Pose 5/50 timed out without ArUco, skipping
+
+[Auto] Pose 6/50: pos=(0.27,-0.16,0.31) rpy=(0.30,0.55,-0.90)
+[Auto] Pose 6/50 timed out without ArUco, skipping
+
+[Auto] Pose 7/50: pos=(0.27,-0.08,0.31) rpy=(-0.30,0.55,-0.45)
+[Auto] Pose 7/50 timed out without ArUco, skipping
+
+[Auto] Pose 8/50: pos=(0.27,0.00,0.31) rpy=(0.30,0.55,0.00)
+
+[Sample 4] auto pose 8/50
+  ArUco: x=-0.052 y=0.079 z=0.486 m
+  End effector (FK): x=0.2706 y=0.0003 z=0.3111 m
+  [OK] Recorded, total samples: 4
+
+[Auto] Pose 9/50: pos=(0.27,0.08,0.31) rpy=(-0.30,0.55,0.45)
+[Auto] Pose 9/50 timed out without ArUco, skipping
+
+[Auto] Pose 10/50: pos=(0.27,0.16,0.31) rpy=(0.30,0.55,0.90)
+[Auto] Pose 10/50 timed out without ArUco, skipping
+
+[Auto] Pose 11/50: pos=(0.26,-0.14,0.34) rpy=(-0.40,0.35,-0.80)
+[Auto] Pose 11/50 timed out without ArUco, skipping
+
+[Auto] Pose 12/50: pos=(0.26,0.00,0.34) rpy=(0.40,0.35,0.00)
+[Auto] Pose 12/50 timed out without ArUco, skipping
+
+[Auto] Pose 13/50: pos=(0.26,0.14,0.34) rpy=(-0.40,0.35,0.80)
+[Auto] Pose 13/50 timed out without ArUco, skipping
+
+[Auto] Pose 14/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,0.00)
+
+[Sample 5] auto pose 14/50
+  ArUco: x=-0.073 y=0.067 z=0.351 m
+  End effector (FK): x=0.3696 y=0.0002 z=0.2696 m
+  [OK] Recorded, total samples: 5
+
+[Auto] Pose 15/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,1.00)
+[Auto] Pose 15/50 timed out without ArUco, skipping
+
+[Auto] Pose 16/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,-1.00)
+[Auto] Pose 16/50 timed out without ArUco, skipping
+
+[Auto] Pose 17/50: pos=(0.37,0.08,0.27) rpy=(0.50,0.65,0.50)
+
+[Sample 6] auto pose 17/50
+  ArUco: x=0.120 y=0.046 z=0.349 m
+  End effector (FK): x=0.3699 y=0.0811 z=0.2703 m
+  [OK] Recorded, total samples: 6
+
+[Auto] Pose 18/50: pos=(0.37,-0.08,0.27) rpy=(-0.50,0.65,-0.50)
+[Auto] Pose 18/50 timed out without ArUco, skipping
+
+[Auto] Pose 19/50: pos=(0.33,0.18,0.27) rpy=(0.50,0.50,0.55)
+[Auto] Pose 19/50 timed out without ArUco, skipping
+
+[Auto] Pose 20/50: pos=(0.33,-0.18,0.27) rpy=(-0.50,0.50,-0.55)
+[Auto] Pose 20/50 timed out without ArUco, skipping
+
+[Auto] Pose 21/50: pos=(0.20,0.22,0.28) rpy=(0.60,0.40,0.70)
+[Auto] Pose 21/50 timed out without ArUco, skipping
+
+[Auto] Pose 22/50: pos=(0.20,-0.22,0.28) rpy=(-0.60,0.40,-0.70)
+[Auto] Pose 22/50 timed out without ArUco, skipping
+
+[Auto] Pose 23/50: pos=(0.24,-0.20,0.31) rpy=(0.70,0.45,-1.00)
+[Auto] Pose 23/50 timed out without ArUco, skipping
+
+[Auto] Pose 24/50: pos=(0.24,0.20,0.31) rpy=(-0.70,0.45,1.00)
+[Auto] Pose 24/50 timed out without ArUco, skipping
+
+[Auto] Pose 25/50: pos=(0.25,-0.15,0.29) rpy=(-0.60,0.62,-0.50)
+[Auto] Pose 25/50 timed out without ArUco, skipping
+
+[Auto] Pose 26/50: pos=(0.25,0.15,0.29) rpy=(0.60,0.62,0.50)
+
+[Sample 7] auto pose 26/50
+  ArUco: x=0.206 y=-0.050 z=0.406 m
+  End effector (FK): x=0.2506 y=0.1493 z=0.2901 m
+  [OK] Recorded, total samples: 7
+
+[Auto] Pose 27/50: pos=(0.21,-0.09,0.40) rpy=(-0.40,0.25,-0.60)
+[Auto] Pose 27/50 timed out without ArUco, skipping
+
+[Auto] Pose 28/50: pos=(0.21,0.00,0.40) rpy=(0.40,0.25,0.00)
+[Auto] Pose 28/50 timed out without ArUco, skipping
+
+[Auto] Pose 29/50: pos=(0.21,0.09,0.40) rpy=(-0.40,0.25,0.60)
+[Auto] Pose 29/50 timed out without ArUco, skipping
+
+[Auto] Pose 30/50: pos=(0.20,-0.09,0.40) rpy=(0.40,0.28,-0.60)
+[Auto] Pose 30/50 timed out without ArUco, skipping
+
+[Auto] Pose 31/50: pos=(0.20,0.09,0.40) rpy=(-0.40,0.28,0.60)
+[Auto] Pose 31/50 timed out without ArUco, skipping
+
+[Auto] Pose 32/50: pos=(0.30,-0.10,0.24) rpy=(0.40,0.70,-0.70)
+[Auto] Pose 32/50 timed out without ArUco, skipping
+
+[Auto] Pose 33/50: pos=(0.30,0.00,0.24) rpy=(0.00,0.75,0.00)
+
+[Sample 8] auto pose 33/50
+  ArUco: x=-0.083 y=-0.035 z=0.383 m
+  End effector (FK): x=0.3003 y=-0.0003 z=0.2400 m
+  [OK] Recorded, total samples: 8
+
+[Auto] Pose 34/50: pos=(0.30,0.10,0.24) rpy=(-0.40,0.70,0.70)
+[Auto] Pose 34/50 timed out without ArUco, skipping
+
+[Auto] Pose 35/50: pos=(0.26,0.12,0.30) rpy=(0.80,0.50,0.30)
+
+[Sample 9] auto pose 35/50
+  ArUco: x=0.172 y=-0.016 z=0.433 m
+  End effector (FK): x=0.2602 y=0.1195 z=0.2997 m
+  [OK] Recorded, total samples: 9
+
+[Auto] Pose 36/50: pos=(0.26,-0.12,0.30) rpy=(-0.80,0.50,-0.30)
+[Auto] Pose 36/50 timed out without ArUco, skipping
+
+[Auto] Pose 37/50: pos=(0.29,-0.10,0.28) rpy=(0.90,0.60,-0.40)
+[Auto] Pose 37/50 timed out without ArUco, skipping
+
+[Auto] Pose 38/50: pos=(0.29,0.10,0.28) rpy=(-0.90,0.60,0.40)
+[Auto] Pose 38/50 timed out without ArUco, skipping
+
+[Auto] Pose 39/50: pos=(0.28,-0.18,0.30) rpy=(0.85,0.55,-0.80)
+[Auto] Pose 39/50 timed out without ArUco, skipping
+
+[Auto] Pose 40/50: pos=(0.28,0.18,0.30) rpy=(-0.85,0.55,0.80)
+[Auto] Pose 40/50 timed out without ArUco, skipping
+
+[Auto] Pose 41/50: pos=(0.35,-0.12,0.30) rpy=(0.60,0.58,-0.70)
+[Auto] Pose 41/50 timed out without ArUco, skipping
+
+[Auto] Pose 42/50: pos=(0.35,0.12,0.30) rpy=(-0.60,0.58,0.70)
+[Auto] Pose 42/50 timed out without ArUco, skipping
+
+[Auto] Pose 43/50: pos=(0.34,-0.06,0.28) rpy=(0.40,0.72,0.80)
+
+[Sample 10] auto pose 43/50
+  ArUco: x=0.058 y=-0.030 z=0.395 m
+  End effector (FK): x=0.3400 y=-0.0591 z=0.2804 m
+  [OK] Recorded, total samples: 10
+
+[Auto] Pose 44/50: pos=(0.34,0.06,0.28) rpy=(-0.40,0.72,-0.80)
+
+[Sample 11] auto pose 44/50
+  ArUco: x=-0.171 y=0.057 z=0.333 m
+  End effector (FK): x=0.3395 y=0.0589 z=0.2803 m
+  [OK] Recorded, total samples: 11
+
+[Auto] Pose 45/50: pos=(0.22,-0.14,0.38) rpy=(0.75,0.32,-0.70)
+[Auto] Pose 45/50 timed out without ArUco, skipping
+
+[Auto] Pose 46/50: pos=(0.22,0.14,0.38) rpy=(-0.75,0.32,0.70)
+[Auto] Pose 46/50 timed out without ArUco, skipping
+
+[Auto] Pose 47/50: pos=(0.31,0.20,0.27) rpy=(0.30,0.68,0.95)
+[Auto] Pose 47/50 timed out without ArUco, skipping
+
+[Auto] Pose 48/50: pos=(0.31,-0.20,0.27) rpy=(-0.30,0.68,-0.95)
+[Auto] Pose 48/50 timed out without ArUco, skipping
+
+[Auto] Pose 49/50: pos=(0.30,0.05,0.32) rpy=(0.75,0.42,0.65)
+
+[Sample 12] auto pose 49/50
+  ArUco: x=0.201 y=0.027 z=0.372 m
+  End effector (FK): x=0.3004 y=0.0500 z=0.3206 m
+  [OK] Recorded, total samples: 12
+
+[Auto] Pose 50/50: pos=(0.30,-0.05,0.32) rpy=(-0.75,0.42,-0.65)
+[Auto] Pose 50/50 timed out without ArUco, skipping
+
+[Auto] All preset poses completed
+[Robot] Homing and disconnecting...
+
+[Finish] auto traversal completed
+[Result] Solving with 12 samples...
+[Result] T_cam2gripper translation: x=-0.0790 y=0.0032 z=0.0746 m
+[Result] Rotation matrix:
+[[ 0.04380523 -0.24378882  0.96883854]
+ [-0.99894617  0.00260907  0.04582304]
+ [-0.01369892 -0.96982483 -0.24341762]]
+[Result] [OK] Saved to /home/enderplum/rebot_grasp/config/calibration/realsense_d405/hand_eye.npz
+[Result] Tip: fewer than 15 samples; collect more samples for better accuracy
+
+Done, total samples: 12.
+
+[Auto] Pose 1/50: pos=(0.28,-0.16,0.26) rpy=(-0.30,0.80,-0.90)
+[Auto] Pose 1/50 timed out without ArUco, skipping
+
+[Auto] Pose 2/50: pos=(0.28,-0.08,0.26) rpy=(0.30,0.80,-0.45)
+
+[Sample 1] auto pose 2/50
+  ArUco: x=-0.161 y=0.056 z=0.369 m
+  End effector (FK): x=0.2803 y=-0.0804 z=0.2603 m
+  [OK] Recorded, total samples: 1
+
+[Auto] Pose 3/50: pos=(0.28,0.00,0.26) rpy=(-0.30,0.80,0.00)
+
+[Sample 2] auto pose 3/50
+  ArUco: x=-0.010 y=-0.067 z=0.384 m
+  End effector (FK): x=0.2796 y=0.0003 z=0.2596 m
+  [OK] Recorded, total samples: 2
+
+[Auto] Pose 4/50: pos=(0.28,0.08,0.26) rpy=(0.30,0.80,0.45)
+
+[Sample 3] auto pose 4/50
+  ArUco: x=0.152 y=-0.053 z=0.360 m
+  End effector (FK): x=0.2803 y=0.0799 z=0.2602 m
+  [OK] Recorded, total samples: 3
+
+[Auto] Pose 5/50: pos=(0.28,0.16,0.26) rpy=(-0.30,0.80,0.90)
+[Auto] Pose 5/50 timed out without ArUco, skipping
+
+[Auto] Pose 6/50: pos=(0.27,-0.16,0.31) rpy=(0.30,0.55,-0.90)
+[Auto] Pose 6/50 timed out without ArUco, skipping
+
+[Auto] Pose 7/50: pos=(0.27,-0.08,0.31) rpy=(-0.30,0.55,-0.45)
+
+[Sample 4] auto pose 7/50
+  ArUco: x=-0.216 y=0.027 z=0.379 m
+  End effector (FK): x=0.2696 y=-0.0797 z=0.3091 m
+  [OK] Recorded, total samples: 4
+
+[Auto] Pose 8/50: pos=(0.27,0.00,0.31) rpy=(0.30,0.55,0.00)
+
+[Sample 5] auto pose 8/50
+  ArUco: x=0.013 y=0.053 z=0.445 m
+  End effector (FK): x=0.2706 y=0.0003 z=0.3111 m
+  [OK] Recorded, total samples: 5
+
+[Auto] Pose 9/50: pos=(0.27,0.08,0.31) rpy=(-0.30,0.55,0.45)
+[Auto] Pose 9/50 timed out without ArUco, skipping
+
+[Auto] Pose 10/50: pos=(0.27,0.16,0.31) rpy=(0.30,0.55,0.90)
+[Auto] Pose 10/50 timed out without ArUco, skipping
+
+[Auto] Pose 11/50: pos=(0.26,-0.14,0.34) rpy=(-0.40,0.35,-0.80)
+[Auto] Pose 11/50 timed out without ArUco, skipping
+
+[Auto] Pose 12/50: pos=(0.26,0.00,0.34) rpy=(0.40,0.35,0.00)
+[Auto] Pose 12/50 timed out without ArUco, skipping
+
+[Auto] Pose 13/50: pos=(0.26,0.14,0.34) rpy=(-0.40,0.35,0.80)
+[Auto] Pose 13/50 timed out without ArUco, skipping
+
+[Auto] Pose 14/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,0.00)
+[Auto] Pose 14/50 timed out without ArUco, skipping
+
+[Auto] Pose 15/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,1.00)
+[Auto] Pose 15/50 timed out without ArUco, skipping
+
+[Auto] Pose 16/50: pos=(0.37,0.00,0.27) rpy=(0.00,0.65,-1.00)
+[Auto] Pose 16/50 timed out without ArUco, skipping
+
+[Auto] Pose 17/50: pos=(0.37,0.08,0.27) rpy=(0.50,0.65,0.50)
+
+[Sample 6] auto pose 17/50
+  ArUco: x=0.173 y=0.040 z=0.308 m
+  End effector (FK): x=0.3698 y=0.0812 z=0.2704 m
+  [OK] Recorded, total samples: 6
+
+[Auto] Pose 18/50: pos=(0.37,-0.08,0.27) rpy=(-0.50,0.65,-0.50)
+
+[Sample 7] auto pose 18/50
+  ArUco: x=-0.188 y=0.029 z=0.290 m
+  End effector (FK): x=0.3699 y=-0.0804 z=0.2699 m
+  [OK] Recorded, total samples: 7
+
+[Auto] Pose 19/50: pos=(0.33,0.18,0.27) rpy=(0.50,0.50,0.55)
+[Auto] Pose 19/50 timed out without ArUco, skipping
+
+[Auto] Pose 20/50: pos=(0.33,-0.18,0.27) rpy=(-0.50,0.50,-0.55)
+[Auto] Pose 20/50 timed out without ArUco, skipping
+
+[Auto] Pose 21/50: pos=(0.20,0.22,0.28) rpy=(0.60,0.40,0.70)
+[Auto] Pose 21/50 timed out without ArUco, skipping
+
+[Auto] Pose 22/50: pos=(0.20,-0.22,0.28) rpy=(-0.60,0.40,-0.70)
+[Auto] Pose 22/50 timed out without ArUco, skipping
+
+[Auto] Pose 23/50: pos=(0.24,-0.20,0.31) rpy=(0.70,0.45,-1.00)
+[Auto] Pose 23/50 timed out without ArUco, skipping
+
+[Auto] Pose 24/50: pos=(0.24,0.20,0.31) rpy=(-0.70,0.45,1.00)
+[Auto] Pose 24/50 timed out without ArUco, skipping
+
+[Auto] Pose 25/50: pos=(0.25,-0.15,0.29) rpy=(-0.60,0.62,-0.50)
+[Auto] Pose 25/50 timed out without ArUco, skipping
+
+[Auto] Pose 26/50: pos=(0.25,0.15,0.29) rpy=(0.60,0.62,0.50)
+
+[Sample 8] auto pose 26/50
+  ArUco: x=0.252 y=-0.056 z=0.360 m
+  End effector (FK): x=0.2506 y=0.1493 z=0.2901 m
+  [OK] Recorded, total samples: 8
+
+[Auto] Pose 27/50: pos=(0.21,-0.09,0.40) rpy=(-0.40,0.25,-0.60)
+[Auto] Pose 27/50 timed out without ArUco, skipping
+
+[Auto] Pose 28/50: pos=(0.21,0.00,0.40) rpy=(0.40,0.25,0.00)
+[Auto] Pose 28/50 timed out without ArUco, skipping
+
+[Auto] Pose 29/50: pos=(0.21,0.09,0.40) rpy=(-0.40,0.25,0.60)
+[Auto] Pose 29/50 timed out without ArUco, skipping
+
+[Auto] Pose 30/50: pos=(0.20,-0.09,0.40) rpy=(0.40,0.28,-0.60)
+[Auto] Pose 30/50 timed out without ArUco, skipping
+
+[Auto] Pose 31/50: pos=(0.20,0.09,0.40) rpy=(-0.40,0.28,0.60)
+[Auto] Pose 31/50 timed out without ArUco, skipping
+
+[Auto] Pose 32/50: pos=(0.30,-0.10,0.24) rpy=(0.40,0.70,-0.70)
+[Auto] Pose 32/50 timed out without ArUco, skipping
+
+[Auto] Pose 33/50: pos=(0.30,0.00,0.24) rpy=(0.00,0.75,0.00)
+
+[Sample 9] auto pose 33/50
+  ArUco: x=-0.015 y=-0.033 z=0.362 m
+  End effector (FK): x=0.3003 y=-0.0003 z=0.2400 m
+  [OK] Recorded, total samples: 9
+
+[Auto] Pose 34/50: pos=(0.30,0.10,0.24) rpy=(-0.40,0.70,0.70)
+[Auto] Pose 34/50 timed out without ArUco, skipping
+
+[Auto] Pose 35/50: pos=(0.26,0.12,0.30) rpy=(0.80,0.50,0.30)
+
+[Sample 10] auto pose 35/50
+  ArUco: x=0.211 y=-0.046 z=0.383 m
+  End effector (FK): x=0.2602 y=0.1195 z=0.2997 m
+  [OK] Recorded, total samples: 10
+
+[Auto] Pose 36/50: pos=(0.26,-0.12,0.30) rpy=(-0.80,0.50,-0.30)
+
+[Sample 11] auto pose 36/50
+  ArUco: x=-0.225 y=-0.099 z=0.380 m
+  End effector (FK): x=0.2602 y=-0.1195 z=0.2999 m
+  [OK] Recorded, total samples: 11
+
+[Auto] Pose 37/50: pos=(0.29,-0.10,0.28) rpy=(0.90,0.60,-0.40)
+[Auto] Pose 37/50 timed out without ArUco, skipping
+
+[Auto] Pose 38/50: pos=(0.29,0.10,0.28) rpy=(-0.90,0.60,0.40)
+[Auto] Pose 38/50 timed out without ArUco, skipping
+
+[Auto] Pose 39/50: pos=(0.28,-0.18,0.30) rpy=(0.85,0.55,-0.80)
+[Auto] Pose 39/50 timed out without ArUco, skipping
+
+[Auto] Pose 40/50: pos=(0.28,0.18,0.30) rpy=(-0.85,0.55,0.80)
+[Auto] Pose 40/50 timed out without ArUco, skipping
+
+[Auto] Pose 41/50: pos=(0.35,-0.12,0.30) rpy=(0.60,0.58,-0.70)
+[Auto] Pose 41/50 timed out without ArUco, skipping
+
+[Auto] Pose 42/50: pos=(0.35,0.12,0.30) rpy=(-0.60,0.58,0.70)
+[Auto] Pose 42/50 timed out without ArUco, skipping
+
+[Auto] Pose 43/50: pos=(0.34,-0.06,0.28) rpy=(0.40,0.72,0.80)
+
+[Sample 12] auto pose 43/50
+  ArUco: x=0.110 y=-0.010 z=0.368 m
+  End effector (FK): x=0.3401 y=-0.0592 z=0.2805 m
+  [OK] Recorded, total samples: 12
+
+[Auto] Pose 44/50: pos=(0.34,0.06,0.28) rpy=(-0.40,0.72,-0.80)
+
+[Sample 13] auto pose 44/50
+  ArUco: x=-0.122 y=0.042 z=0.369 m
+  End effector (FK): x=0.3398 y=0.0590 z=0.2804 m
+  [OK] Recorded, total samples: 13
+
+[Auto] Pose 45/50: pos=(0.22,-0.14,0.38) rpy=(0.75,0.32,-0.70)
+[Auto] Pose 45/50 timed out without ArUco, skipping
+
+[Auto] Pose 46/50: pos=(0.22,0.14,0.38) rpy=(-0.75,0.32,0.70)
+[Auto] Pose 46/50 timed out without ArUco, skipping
+
+[Auto] Pose 47/50: pos=(0.31,0.20,0.27) rpy=(0.30,0.68,0.95)
+[Auto] Pose 47/50 timed out without ArUco, skipping
+
+[Auto] Pose 48/50: pos=(0.31,-0.20,0.27) rpy=(-0.30,0.68,-0.95)
+[Auto] Pose 48/50 timed out without ArUco, skipping
+
+[Auto] Pose 49/50: pos=(0.30,0.05,0.32) rpy=(0.75,0.42,0.65)
+
+[Sample 14] auto pose 49/50
+  ArUco: x=0.260 y=0.016 z=0.350 m
+  End effector (FK): x=0.3005 y=0.0499 z=0.3206 m
+  [OK] Recorded, total samples: 14
+
+[Auto] Pose 50/50: pos=(0.30,-0.05,0.32) rpy=(-0.75,0.42,-0.65)
+[Auto] Pose 50/50 timed out without ArUco, skipping
+
+[Auto] All preset poses completed
+[Robot] Homing and disconnecting...
+
+[Finish] auto traversal completed
+[Result] Solving with 14 samples...
+[Result] T_cam2gripper translation: x=-0.0753 y=0.0143 z=0.0692 m
+[Result] Rotation matrix:
+[[ 0.04713016 -0.27165113  0.96124108]
+ [-0.99885852 -0.0053296   0.04746839]
+ [-0.00777181 -0.96238104 -0.27159223]]
+[Result] [OK] Saved to /home/enderplum/rebot_grasp/config/calibration/realsense_d405/hand_eye.npz
+[Result] Tip: fewer than 15 samples; collect more samples for better accuracy
+
+Done, total samples: 14.

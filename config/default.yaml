@@ -1,0 +1,75 @@
+camera:
+  type: realsense_d405
+  serial: null
+  color_width: 1280
+  color_height: 720
+  fps: 30
+
+calibration:
+  aruco:
+    marker_length_m: 0.1
+    dict_id: 0
+    target_marker_id: 0
+  hand_eye_method: TSAI
+  hand_eye_compensation_m:
+    x: -0.04
+    y: -0.03
+    z: -0.04
+
+detection:
+  conf_threshold: 0.5
+  iou_threshold: 0.45
+
+robot:
+  repo_root: null
+  gripper:
+    dm:
+      force_threshold: 0.3
+      angle_open: 5.0
+      counterclockwise: true
+      tau_max: 2
+      close_torque: 0.8
+      default_force: 0.40
+    rs:
+      angle_open: 5.0
+      counterclockwise: false
+      tau_max: 1.5
+      close_torque: 1.5
+      default_force: 0.30
+  ready_pose:
+    x: 0.3
+    y: 0.0
+    z: 0.3
+    roll: 0.0
+    pitch: 0.7
+    duration: 3.0
+
+yolo:
+  model_name: "yolov11s-seg-artifactv3.pt"
+  device: "cuda"
+  use_world: true
+  custom_classes:
+    - "banana"
+    - "grape"
+#    - "pineapple"
+    - "carambola"
+    - "peach"
+
+grasp_pipeline:
+  infer_every_live: 3
+  grasp:
+    depth_quantile: 0.20
+    pregrasp_offset_m: 0.080
+    insertion_depth_m: 0.02
+    min_base_z_m: 0.00
+
+graspnet:
+  checkpoint: "checkpoint-rs.tar"
+  num_point: 20000
+  collision_thresh: 0.01
+  min_depth: 0.05
+  max_depth: 1.0
+  top_k: 50
+  target_class: null
+  target_margin_px: 12
+  target_expand_ratio: 1.35
