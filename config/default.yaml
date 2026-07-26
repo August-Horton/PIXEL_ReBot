@@ -12,9 +12,9 @@ calibration:
     target_marker_id: 0
   hand_eye_method: TSAI
   hand_eye_compensation_m:
-    x: -0.04
-    y: -0.03
-    z: -0.04
+    x: -0.02
+    y: -0.01
+    z: -0.015
 
 detection:
   conf_threshold: 0.5
@@ -24,12 +24,11 @@ robot:
   repo_root: null
   gripper:
     dm:
-      force_threshold: 0.3
       angle_open: 5.0
       counterclockwise: true
-      tau_max: 2
-      close_torque: 0.8
-      default_force: 0.40
+      tau_max: 1.5
+      close_torque: 1.0
+      default_force: 0.30
     rs:
       angle_open: 5.0
       counterclockwise: false
@@ -58,10 +57,10 @@ yolo:
 grasp_pipeline:
   infer_every_live: 3
   grasp:
-    depth_quantile: 0.20
+    depth_quantile: 0.5
     pregrasp_offset_m: 0.080
-    insertion_depth_m: 0.02
-    min_base_z_m: 0.00
+    insertion_depth_m: 0.015
+    min_base_z_m: 0.01s
 
 graspnet:
   checkpoint: "checkpoint-rs.tar"
