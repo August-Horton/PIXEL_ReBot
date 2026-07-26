@@ -478,7 +478,7 @@ def main() -> int:
                     if not grasp.is_valid:
                         continue
                     if "cube" in grasp.class_name.lower():
-                        if grasp.position[2] > 0.5:
+                        if grasp.position[2] > 0.65:
                             continue
                         if snap_cube is None or grasp.position[0] < snap_cube.position[0]:
                             snap_cube = grasp
