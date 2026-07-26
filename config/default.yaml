@@ -28,6 +28,7 @@ robot:
       counterclockwise: true
       tau_max: 1.5
       close_torque: 1.0
+      kd_close: 0.1
       default_force: 0.30
     rs:
       angle_open: 5.0

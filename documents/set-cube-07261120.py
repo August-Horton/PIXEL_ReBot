@@ -20,6 +20,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 import time
 import threading
@@ -78,13 +79,13 @@ def _move_ready(controller: RebotArmEndPose, ready_cfg: dict[str, Any]) -> None:
 
 
 def _reset_wrist_joints(controller: RebotArmEndPose) -> None:
-    """将关节5和关节6复位为0 (速度0.3)，用于IK失败后恢复。"""
+    """将关节5和关节6复位为0 (速度1.0)，用于IK失败后恢复。"""
     q_now = controller.rebotarm.arm.get_positions()
     q_reset = q_now.copy()
     q_reset[4] = 0.0
     q_reset[5] = 0.0
     print(f"[Reset] Wrist joints 5/6 -> 0 from {q_now[[4,5]].tolist()}")
-    controller._vlim_override = np.array([0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
+    controller._vlim_override = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
     controller._q_target[:] = q_reset
     t0 = time.perf_counter()
     while time.perf_counter() - t0 < 4.0:
@@ -101,9 +102,95 @@ def _cam_to_base(T_hand_eye: np.ndarray, grasp_driver: GraspDriver, cfg: dict[st
     return compose_cam_to_base_transform(grasp_driver.get_tcp_pose(), T_hand_eye, cfg)
 
 
+def _read_joint1(controller: RebotArmEndPose) -> float:
+    """读取当前 joint1 角度。"""
+    return float(controller.rebotarm.get_state()[0][0])
+
+
+def _visual_servo_center(
+    cam,
+    model: Any,
+    yolo_opts: dict[str, Any],
+    controller: RebotArmEndPose,
+    target_name: str,
+    K: np.ndarray,
+    cfg: dict[str, Any],
+    *,
+    deadzone_ratio: float = 0.10,
+    max_step_rad: float = 0.08,
+    gain_p: float = 0.8,
+    max_iter: int = 30,
+) -> None:
+    """旋转 base joint (j1) 使目标在画面中居中 — 非阻塞 P 控制。"""
+    W = int(cfg.get("camera", {}).get("color_width", 1280))
+    cx_center = W / 2.0
+    deadzone = W * deadzone_ratio
+    fov_h_rad = 2.0 * math.atan(W / (2.0 * max(float(K[0, 0]), 1e-6)))
+
+    print(f"[Servo] W={W} centre={cx_center:.0f} deadzone=±{deadzone:.0f}px  FOVh={math.degrees(fov_h_rad):.1f}deg")
+
+    for iteration in range(1, max_iter + 1):
+        color, _ = cam.get_frame()
+        if color is None:
+            continue
+
+        results = model.predict(
+            color, verbose=False,
+            device=yolo_opts.get("device", "cpu"),
+            conf=float(yolo_opts.get("conf", 0.25)),
+            iou=float(yolo_opts.get("iou", 0.45)),
+        )
+
+        target_cx: Optional[float] = None
+        for result in results:
+            for box in result.boxes:
+                if target_name in str(result.names.get(int(box.cls[0]), "")).lower():
+                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                    target_cx = float((x1 + x2) / 2.0)
+                    break
+            if target_cx is not None:
+                break
+
+        if target_cx is None:
+            controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
+            print(f"[Servo] iter {iteration}/{max_iter}: target lost, braking")
+            continue
+
+        error = cx_center - target_cx
+        print(f"[Servo] iter {iteration}/{max_iter}: cx_obj={target_cx:.0f} error={error:+.0f}px")
+
+        if abs(error) <= deadzone:
+            controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
+            print(f"[Servo] Centred — braking & settling")
+            time.sleep(0.3)
+            return
+
+        rad_per_px = fov_h_rad / W
+        delta = float(np.clip(error * gain_p * rad_per_px, -max_step_rad, max_step_rad))
+        target_j1 = float(controller.rebotarm.get_state()[0][0]) + delta
+        print(f"[Servo]   j1 -> {target_j1:+.4f} rad  (step={delta:+.4f})")
+        controller._q_target[0] = target_j1
+        time.sleep(0.05)
+
+    print(f"[Servo] Max iterations reached, proceeding")
+
+
 # ---------------------------------------------------------------------------
 # 抓取动作序列
 # ---------------------------------------------------------------------------
+
+def _blind_grasp(grasp_driver: GraspDriver, timeout: float = 1.2) -> None:
+    """全扭矩闭合，忽略力反馈 — 直接判定抓取成功。"""
+    print(f"[blind] Closing ({timeout:.1f}s)...")
+    _orig_torque = grasp_driver._close_torque
+    _orig_kd = grasp_driver._kd_close
+    grasp_driver._close_torque = grasp_driver._close_sign * grasp_driver._tau_max
+    grasp_driver._kd_close = 0.0
+    grasp_driver.grasp(timeout=timeout)
+    grasp_driver._close_torque = _orig_torque
+    grasp_driver._kd_close = _orig_kd
+    print("[blind] Done — assume grasped")
+
 
 def _execute_grasp_sequence(
     controller: RebotArmEndPose,
@@ -151,12 +238,9 @@ def _execute_grasp_sequence(
         return False
     _wait_motion(controller, 1.5)
 
-    # 步骤 2d: 闭合夹爪抓取物体
-    print("[Step2] Closing gripper")
-    ok = grasp_driver.grasp()
-    print("[Step2] Holding object" if ok else "[Step2] Empty grasp")
-    if not ok:
-        return False
+    # 步骤 2d: 盲抓（全扭矩闭合，不依赖力反馈）
+    print("[Step2] Blind grasp")
+    _blind_grasp(grasp_driver)
 
     # 步骤 3: Cartesian 抬升 Z 到 0.15, 再调整关节 2/3
     print("[Step3] Cartesian lift Z to 0.20")
@@ -166,7 +250,7 @@ def _execute_grasp_sequence(
     _wait_motion(controller, 2.0)
 
     print("[Step3] Set joints 2/3 to lift position")
-    controller._vlim_override = np.array([0.8, 0.8, 0.8, 0.5, 0.5, 0.5])
+    controller._vlim_override = np.array([1.2, 1.2, 1.2, 0.5, 0.5, 0.5])
     q_now = controller.rebotarm.arm.get_positions()
     q_lift = q_now.copy()
     q_lift[1] = -0.57
@@ -329,7 +413,7 @@ def main() -> int:
 
         # ---- 后台抓取线程 ----
         def _auto_process_loop() -> None:
-            """持续检测并抓取香蕉, 直到 grasp_mode 被关闭."""
+            """持续检测并抓取 cube, 直到 grasp_mode 被关闭."""
             nonlocal last_results, last_grasps
             cube_count = 0
 
@@ -338,7 +422,7 @@ def main() -> int:
                     if not grasp_mode:
                         break
 
-                # 拍一张快照
+                # ---- 先检查画面中是否有 cube ----
                 snap_color, snap_depth = cam.get_frame()
                 if snap_color is None or snap_depth is None:
                     print("[G] ERROR: frame capture failed, aborting")
@@ -346,7 +430,36 @@ def main() -> int:
                     _move_ready(controller, ready_cfg)
                     break
 
-                # YOLO 检测
+                # 快速 YOLO 检测是否有 cube
+                quick_results = model.predict(
+                    snap_color,
+                    verbose=False,
+                    device=yolo_opts.get("device", "cpu"),
+                    conf=float(yolo_opts.get("conf", 0.25)),
+                    iou=float(yolo_opts.get("iou", 0.45)),
+                )
+                found = False
+                for result in quick_results:
+                    for box in result.boxes:
+                        if "cube" in str(result.names.get(int(box.cls[0]), "")).lower():
+                            found = True
+                            break
+                if not found:
+                    print(f"[G] No cube found, waiting... (processed {cube_count})")
+                    time.sleep(1.0)
+                    continue
+
+                # ---- Visual servoing: 旋转 joint1 使目标居中 ----
+                _visual_servo_center(cam, model, yolo_opts, controller, "cube", K, cfg)
+
+                # ---- 居中后拍照进行 3D 抓取估计 ----
+                snap_color, snap_depth = cam.get_frame()
+                if snap_color is None or snap_depth is None:
+                    print("[G] ERROR: frame capture after servo failed, aborting")
+                    print(f"[G] Joints before reset: {rebotarm.arm.get_positions().tolist()}")
+                    _move_ready(controller, ready_cfg)
+                    break
+
                 snap_results = model.predict(
                     snap_color,
                     verbose=False,
@@ -356,17 +469,17 @@ def main() -> int:
                 )
                 snap_grasps = estimate_grasps(snap_results, snap_depth, K, depth_quantile=depth_quantile)
 
-                # 找出最左侧的香蕉
+                # 找出置信度最高的 cube
                 snap_cube = None
                 for grasp in snap_grasps:
                     if not grasp.is_valid:
                         continue
                     if "cube" in grasp.class_name.lower():
-                        if snap_cube is None or grasp.bbox_xyxy[0] < snap_cube.bbox_xyxy[0]:
+                        if snap_cube is None or grasp.conf > snap_cube.conf:
                             snap_cube = grasp
 
                 if snap_cube is None:
-                    print(f"[G] No cube found, waiting... (processed {cube_count})")
+                    print(f"[G] No valid cube after servo, waiting... (processed {cube_count})")
                     time.sleep(1.0)
                     continue
 
@@ -375,8 +488,7 @@ def main() -> int:
                 print(f"  position_xyz={snap_cube.position.tolist()}")
 
                 cube_cam_x = float(snap_cube.position[0])
-                side = "right" if cube_cam_x > 0 else "left"
-                print(f"  cam_x={cube_cam_x:+.3f} -> {side} side")
+                print(f"  cam_x={cube_cam_x:+.3f}")
 
                 # 更新冻结画面
                 last_results = snap_results
@@ -410,11 +522,13 @@ def main() -> int:
 
                 print(f"[G] Cube #{cube_count} grasped!")
 
-                # ---- 放置: 旋转 joint1 ----
+                # ---- 放置: 根据 joint1 角度决定左/右 ----
                 rotate_q = rebotarm.arm.get_positions()
-                print(f"[G] Joints after lift, before rotate: {rotate_q.tolist()}")
-                rotate_q[0] = -2.61 if cube_cam_x > 0 else 2.61
-                print(f"[G] Rotate joint1 to: {rotate_q.tolist()}")
+                j1_at_grasp = float(rotate_q[0])
+                side = "left" if j1_at_grasp > 0 else "right"
+                rotate_q[0] = 2.61 if j1_at_grasp > 0 else -2.61
+                print(f"[G] Joints after lift, before rotate: {rebotarm.arm.get_positions().tolist()}")
+                print(f"[G] joint1 at grasp = {j1_at_grasp:+.3f} -> {side} place (j1={rotate_q[0]:+.3f})")
 
                 controller._vlim_override = np.array([2.0, 2.0, 2.0, 1.6, 1.6, 1.6])
                 controller._q_target[:] = rotate_q
@@ -433,7 +547,7 @@ def main() -> int:
 
                 controller._vlim_override = None
 
-                # 释放香蕉
+                # 释放 cube
                 with grasp_driver._state_lock:
                     grasp_driver._state = grasp_driver._STATE_IDLE
 
