@@ -45,7 +45,7 @@ robot:
     duration: 3.0
 
 yolo:
-  model_name: "yolov11s-seg-artifactv3.pt"
+  model_name: "yolov11s-seg-cube.pt"
   device: "cuda"
   use_world: true
   custom_classes:
