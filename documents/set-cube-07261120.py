@@ -141,15 +141,16 @@ def _visual_servo_center(
             iou=float(yolo_opts.get("iou", 0.45)),
         )
 
+        # 找出最左侧的目标 box
         target_cx: Optional[float] = None
+        best_x1 = float("inf")
         for result in results:
             for box in result.boxes:
                 if target_name in str(result.names.get(int(box.cls[0]), "")).lower():
                     x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
-                    target_cx = float((x1 + x2) / 2.0)
-                    break
-            if target_cx is not None:
-                break
+                    if x1 < best_x1:
+                        best_x1 = float(x1)
+                        target_cx = float((x1 + x2) / 2.0)
 
         if target_cx is None:
             controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
@@ -410,6 +411,8 @@ def main() -> int:
         print("[Robot] Move ready")
         print(f"[Robot] Initial joints: {rebotarm.arm.get_positions().tolist()}")
         _move_ready(controller, ready_cfg)
+        grasp_driver.open_gripper()
+        print("[Robot] Gripper opened")
 
         # ---- 后台抓取线程 ----
         def _auto_process_loop() -> None:
@@ -469,13 +472,15 @@ def main() -> int:
                 )
                 snap_grasps = estimate_grasps(snap_results, snap_depth, K, depth_quantile=depth_quantile)
 
-                # 找出置信度最高的 cube
+                # 找出最左侧的 cube（深度 < 0.5m）
                 snap_cube = None
                 for grasp in snap_grasps:
                     if not grasp.is_valid:
                         continue
                     if "cube" in grasp.class_name.lower():
-                        if snap_cube is None or grasp.conf > snap_cube.conf:
+                        if grasp.position[2] > 0.5:
+                            continue
+                        if snap_cube is None or grasp.position[0] < snap_cube.position[0]:
                             snap_cube = grasp
 
                 if snap_cube is None:
@@ -547,21 +552,14 @@ def main() -> int:
 
                 controller._vlim_override = None
 
-                # 释放 cube
-                with grasp_driver._state_lock:
-                    grasp_driver._state = grasp_driver._STATE_IDLE
-
+                # 释放 cube: 用 grasp_driver 方法张开夹爪
                 print("[G] Open gripper to release cube")
-                rebotarm.gripper.send_mit(np.array([-5.500]), kp=np.array([8.0]), kd=np.array([1.0]))
+                grasp_driver.open_gripper()
                 time.sleep(0.3)
 
-                with grasp_driver._state_lock:
-                    grasp_driver._state = grasp_driver._STATE_IDLE
-                    grasp_driver._target_pos = 0.0
-
+                # 闭合夹爪: 用盲抓闭合
                 print("[G] Close gripper")
-                rebotarm.gripper.send_mit(np.array([0.0]), kp=np.array([8.0]), kd=np.array([1.0]))
-                time.sleep(0.3)
+                _blind_grasp(grasp_driver, timeout=0.5)
 
                 # 回到预备位
                 print("[G] Return arm to ready position")
@@ -578,7 +576,7 @@ def main() -> int:
                 ):
                     print("[G] Ready IK failed, reset wrist joints 5/6 to 0")
                     _reset_wrist_joints(controller)
-                    controller.move_to_traj(
+                    if not controller.move_to_traj(
                         x=float(ready_cfg.get("x", 0.25)),
                         y=float(ready_cfg.get("y", 0.0)),
                         z=float(ready_cfg.get("z", 0.35)),
@@ -586,15 +584,25 @@ def main() -> int:
                         pitch=float(ready_cfg.get("pitch", 1.2)),
                         yaw=float(ready_cfg.get("yaw", 0.0)),
                         duration=duration,
-                    )
-                _wait_motion(controller, duration)
+                    ):
+                        print("[G] Still failed after wrist reset, safe_home then retry")
+                        controller.safe_home()
+                        _move_ready(controller, ready_cfg)
+                    else:
+                        _wait_motion(controller, duration)
+                else:
+                    _wait_motion(controller, duration)
 
                 print(f"[G] Cube #{cube_count} placed!")
+                grasp_driver.open_gripper()
 
             # 模式关闭, 复位
             print(f"[G] Grasp mode off, processed {cube_count} cubes")
             print(f"[G] Joints before final reset: {rebotarm.arm.get_positions().tolist()}")
+            servoing = True
             _move_ready(controller, ready_cfg)
+            servoing = False
+            grasp_driver.open_gripper()
 
         # ================================================================
         # 主循环: 实时预览 + 键盘交互
@@ -682,11 +690,11 @@ def main() -> int:
     # 清理阶段
     # ================================================================
     finally:
-        print("\n[Exit] Release gripper and home")
-        # 释放夹爪
+        print("\n[Exit] Blind close gripper and home")
+        # 盲抓闭合夹爪
         try:
             if robot_ready and grasp_driver is not None and controller is not None and getattr(controller, "_running", False):
-                grasp_driver.release_gripper()
+                _blind_grasp(grasp_driver, timeout=1.0)
         except Exception as exc:
             print(f"[Exit] {exc}")
         # 机械臂回零并断开连接
