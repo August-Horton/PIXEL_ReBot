@@ -1,11 +1,11 @@
 info
 Log
 data
-unused/*
+unused/
 mobileclip2_b.ts
 __pycache__/
 *.pyc
-sdk/*
+sdk/
 calibration/
 drivers/
 graspnetAPI/
