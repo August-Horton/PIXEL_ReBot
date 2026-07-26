@@ -1,0 +1,11 @@
+info
+Log
+data
+unused/*
+mobileclip2_b.ts
+__pycache__/
+*.pyc
+sdk/*
+models/
+*.npz
+*voice*
