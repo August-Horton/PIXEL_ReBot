@@ -117,7 +117,7 @@ def _visual_servo_center(
     cfg: dict[str, Any],
     *,
     deadzone_ratio: float = 0.10,
-    max_step_rad: float = 0.08,
+    max_step_rad: float = 0.20,
     gain_p: float = 0.8,
     gain_i: float = 0.01,
     gain_d: float = 0.1,
@@ -183,7 +183,7 @@ def _visual_servo_center(
             target_j1 = float(controller.rebotarm.get_state()[0][0]) + step
             print(f"[Servo] iter {iteration}/{max_iter}: target lost, blind={blind_travel:.3f}/{BLIND_LIMIT}rad, step={step:+.3f}")
             controller._q_target[0] = target_j1
-            time.sleep(0.05)
+            time.sleep(0.02)
             continue
 
         # 目标重新出现 → 清零盲走累计
@@ -220,7 +220,7 @@ def _visual_servo_center(
         target_j1 = float(controller.rebotarm.get_state()[0][0]) + delta
         print(f"[Servo]   j1 -> {target_j1:+.4f} rad  (step={delta:+.4f}  P={p_term*rad_per_px:+.4f} I={i_term*rad_per_px:+.4f} D={d_term*rad_per_px:+.4f})")
         controller._q_target[0] = target_j1
-        time.sleep(0.05)
+        time.sleep(0.03)
 
     print(f"[Servo] Max iterations reached, proceeding")
 
@@ -250,15 +250,24 @@ def _execute_grasp_sequence(
     ready_cfg: dict[str, Any],
     dry_run: bool,
 ) -> bool:
-    """执行完整抓取序列: 开爪 -> 预抓取位 -> 抓取位 -> 合爪 -> 抬升到预备位。
-    
+    """执行完整抓取序列: 开爪 -> 预抓取位 -> 抓取位 -> 合爪 -> 抬升。
+
+    时序:
+      Step 0: 开爪, 检查爪是否已张开 (pos 接近上限)
+      Step 1: Cartesian 移动到预抓取位 (抓取目标正上方偏移)
+      Step 2: Cartesian 下降到抓取目标位
+      Step 3: 盲抓 — 全扭矩闭合, 不依赖力反馈
+      Step 4: Cartesian 抬升 Z→0.25 (失败不致命, 跳过)
+      Step 5: 关节空间 joints 2/3 收缩到安全抬升角, 远离身体/桌面
+
     grasp6d: (x, y, z, roll, pitch, yaw) 抓取目标位姿 (基座坐标系)
-    pre6d:   预抓取位姿 (抓取位上方偏移)
-    ready_cfg: 预备位配置
-    返回 True 表示抓取成功，False 表示失败。
+    pre6d:   预抓取位姿 (抓取位上方偏移量, 避免下降时撞到物体)
+    ready_cfg: 预备位配置 (仅用于文档, 不在此函数内调用 _move_ready)
+    返回 True 表示抓取成功，False 表示 IK 失败。
     """
-    xg, yg, zg, rxg, ryg, rzg = grasp6d
-    xp, yp, zp, rxp, ryp, rzp = pre6d
+    # ---- 解包抓取与预抓取位姿 ----
+    xg, yg, zg, rxg, ryg, rzg = grasp6d        # 实际抓取点
+    xp, yp, zp, rxp, ryp, rzp = pre6d           # 安全接近点 (抓取点上方)
 
     print(f"[Step2] pregrasp  xyz=({xp:+.3f},{yp:+.3f},{zp:+.3f})  rpy=({rxp:+.3f},{ryp:+.3f},{rzp:+.3f})")
     print(f"[Step2] grasp     xyz=({xg:+.3f},{yg:+.3f},{zg:+.3f})  rpy=({rxg:+.3f},{ryg:+.3f},{rzg:+.3f})")
@@ -292,31 +301,32 @@ def _execute_grasp_sequence(
     print("[Step2] Blind grasp")
     _blind_grasp(grasp_driver)
 
-    # 步骤 3: Cartesian 抬升 Z 到 0.20, 再调整关节 2/3
-    print("[Step3] Cartesian lift Z to 0.20")
-    if not controller.move_to_traj(xg, yg, 0.20, rxg, ryg, rzg, duration=0.8):
-        print("[Step3] Cartesian lift IK failed")
-        return False
-    _wait_motion(controller, 0.9)
+    # 步骤 3: Cartesian 抬升 Z 到 0.25, 失败则跳过直接走关节空间抬升
+    print("[Step3] Cartesian lift Z to 0.25")
+    if controller.move_to_traj(xg, yg, 0.25, rxg, ryg, rzg, duration=0.8):
+        _wait_motion(controller, 0.9)
+    else:
+        print("[Step3] Cartesian lift IK failed, skip to joint-space lift")
 
+    # ---- 关节空间抬升: joints 2/3 收缩到安全角, 避免末端撞身体/桌面 ----
     print("[Step3] Set joints 2/3 to lift position")
-    controller._vlim_override = np.array([1.2, 1.2, 1.2, 0.5, 0.5, 0.5])
+    controller._vlim_override = np.array([1.2, 1.2, 1.2, 0.5, 0.5, 0.5])  # 提升速度限制
     q_now = controller.rebotarm.arm.get_positions()
     q_lift = q_now.copy()
-    q_lift[1] = -0.57
-    q_lift[2] = -0.81
+    q_lift[1] = -0.9          # joint2 收缩 (抬升)
+    q_lift[2] = -1          # joint3 收缩 (回收)
     controller._q_target[:] = q_lift
     t0 = time.perf_counter()
-    while time.perf_counter() - t0 < 3.0:
+    while time.perf_counter() - t0 < 3.0:          # 最多等 3s 到位
         current_q = controller.rebotarm.arm.get_positions()
         err = max(abs(current_q[1] - q_lift[1]), abs(current_q[2] - q_lift[2]))
-        if err < 0.05:
+        if err < 0.05:                              # ±0.05 rad 容差
             break
         time.sleep(0.1)
-    controller._vlim_override = None
+    controller._vlim_override = None                # 恢复默认速度限制
     print(f"[Step3] Lift done, joints: {q_lift.tolist()}")
 
-    return True
+    return True  # 抓取成功，后续放置由调用方处理
 
 
 # ---------------------------------------------------------------------------

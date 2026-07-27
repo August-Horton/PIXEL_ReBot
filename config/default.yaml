@@ -14,7 +14,7 @@ calibration:
   hand_eye_compensation_m:
     x: -0.02
     y: -0.01
-    z: -0.015
+    z: -0.035
 
 detection:
   conf_threshold: 0.5
