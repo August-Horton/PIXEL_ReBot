@@ -309,17 +309,18 @@ def _execute_grasp_sequence(
         print("[Step3] Cartesian lift IK failed, skip to joint-space lift")
 
     # ---- 关节空间抬升: joints 2/3 收缩到安全角, 避免末端撞身体/桌面 ----
-    print("[Step3] Set joints 2/3 to lift position")
-    controller._vlim_override = np.array([1.2, 1.2, 1.2, 0.5, 0.5, 0.5])  # 提升速度限制
+    print("[Step3] Set joints 2/3/4 to lift position")
+    controller._vlim_override = np.array([1.2, 1.2, 1.2, 1.2, 0.5, 0.5])  # 提升速度限制
     q_now = controller.rebotarm.arm.get_positions()
     q_lift = q_now.copy()
-    q_lift[1] = -0.9          # joint2 收缩 (抬升)
-    q_lift[2] = -1          # joint3 收缩 (回收)
+    q_lift[1] = -0.6           # joint2 收缩 (抬升)
+    q_lift[2] = -1.15         # joint3 收缩 (回收)
+    q_lift[3] = 1.2           # joint4 外展 (稳定姿态)
     controller._q_target[:] = q_lift
     t0 = time.perf_counter()
     while time.perf_counter() - t0 < 3.0:          # 最多等 3s 到位
         current_q = controller.rebotarm.arm.get_positions()
-        err = max(abs(current_q[1] - q_lift[1]), abs(current_q[2] - q_lift[2]))
+        err = max(abs(current_q[1] - q_lift[1]), abs(current_q[2] - q_lift[2]), abs(current_q[3] - q_lift[3]))
         if err < 0.05:                              # ±0.05 rad 容差
             break
         time.sleep(0.1)
