@@ -65,7 +65,7 @@ def _wait_motion(controller: RebotArmEndPose, duration: float, extra: float = 0.
 
 def _move_ready(controller: RebotArmEndPose, ready_cfg: dict[str, Any]) -> None:
     """将机械臂末端移动到配置文件定义的预备位姿 (Cartesian 空间)。"""
-    duration = float(ready_cfg.get("duration", 3.0))
+    duration = float(ready_cfg.get("duration", 1.0))
     controller.move_to_traj(
         x=float(ready_cfg.get("x", 0.25)),
         y=float(ready_cfg.get("y", 0.0)),
@@ -79,13 +79,13 @@ def _move_ready(controller: RebotArmEndPose, ready_cfg: dict[str, Any]) -> None:
 
 
 def _reset_wrist_joints(controller: RebotArmEndPose) -> None:
-    """将关节5和关节6复位为0 (速度1.0)，用于IK失败后恢复。"""
+    """将关节5和关节6复位为0 (速度2.0)，用于IK失败后恢复。"""
     q_now = controller.rebotarm.arm.get_positions()
     q_reset = q_now.copy()
     q_reset[4] = 0.0
     q_reset[5] = 0.0
     print(f"[Reset] Wrist joints 5/6 -> 0 from {q_now[[4,5]].tolist()}")
-    controller._vlim_override = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+    controller._vlim_override = np.array([2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
     controller._q_target[:] = q_reset
     t0 = time.perf_counter()
     while time.perf_counter() - t0 < 4.0:
@@ -121,15 +121,21 @@ def _visual_servo_center(
     gain_p: float = 0.8,
     max_iter: int = 30,
 ) -> None:
-    """旋转 base joint (j1) 使目标在画面中居中 — 非阻塞 P 控制。"""
+    """旋转 base joint (j1) 使目标在画面中居中 — 非阻塞 P 控制。
+    
+    原理: 将画面像素偏差映射为 joint1 旋转角度，逐帧 P 控制逼近。
+    为与抓取阶段选目标逻辑一致，每帧只跟踪最左侧的 target。
+    """
+    # ---- 计算画面几何参数 ----
     W = int(cfg.get("camera", {}).get("color_width", 1280))
-    cx_center = W / 2.0
-    deadzone = W * deadzone_ratio
-    fov_h_rad = 2.0 * math.atan(W / (2.0 * max(float(K[0, 0]), 1e-6)))
+    cx_center = W / 2.0                                             # 画面水平中心
+    deadzone = W * deadzone_ratio                                   # 容忍死区 (像素)
+    fov_h_rad = 2.0 * math.atan(W / (2.0 * max(float(K[0, 0]), 1e-6)))  # 水平 FOV (rad)
 
     print(f"[Servo] W={W} centre={cx_center:.0f} deadzone=±{deadzone:.0f}px  FOVh={math.degrees(fov_h_rad):.1f}deg")
 
     for iteration in range(1, max_iter + 1):
+        # 1. 取当前帧 → YOLO 检测
         color, _ = cam.get_frame()
         if color is None:
             continue
@@ -141,7 +147,7 @@ def _visual_servo_center(
             iou=float(yolo_opts.get("iou", 0.45)),
         )
 
-        # 找出最左侧的目标 box
+        # 2. 遍历检测框，取最左侧匹配框的中心 x
         target_cx: Optional[float] = None
         best_x1 = float("inf")
         for result in results:
@@ -152,20 +158,24 @@ def _visual_servo_center(
                         best_x1 = float(x1)
                         target_cx = float((x1 + x2) / 2.0)
 
+        # 3. 未检测到目标 → 刹车停在当前位置
         if target_cx is None:
             controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
             print(f"[Servo] iter {iteration}/{max_iter}: target lost, braking")
             continue
 
+        # 4. 计算像素误差
         error = cx_center - target_cx
         print(f"[Servo] iter {iteration}/{max_iter}: cx_obj={target_cx:.0f} error={error:+.0f}px")
 
+        # 5. 误差在死区内 → 刹车 + 稳定等待，退出 servo
         if abs(error) <= deadzone:
             controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
             print(f"[Servo] Centred — braking & settling")
             time.sleep(0.3)
             return
 
+        # 6. 像素误差 → 角度步长 (rad/px 映射 + P 增益 + 限幅)
         rad_per_px = fov_h_rad / W
         delta = float(np.clip(error * gain_p * rad_per_px, -max_step_rad, max_step_rad))
         target_j1 = float(controller.rebotarm.get_state()[0][0]) + delta
@@ -227,28 +237,28 @@ def _execute_grasp_sequence(
 
     # 步骤 2b: 移动到物体上方的预抓取位
     print("[Step2] Move to pregrasp")
-    if not controller.move_to_traj(xp, yp, zp, rxp, ryp, rzp, duration=2.0):
+    if not controller.move_to_traj(xp, yp, zp, rxp, ryp, rzp, duration=1.5):
         print("[Step2] Pregrasp IK failed")
         return False
-    _wait_motion(controller, 2.0)
+    _wait_motion(controller, 1.6)
 
     # 步骤 2c: 下降到抓取位
     print("[Step2] Move to grasp")
-    if not controller.move_to_traj(xg, yg, zg, rxg, ryg, rzg, duration=1.5):
+    if not controller.move_to_traj(xg, yg, zg, rxg, ryg, rzg, duration=1.0):
         print("[Step2] Grasp IK failed")
         return False
-    _wait_motion(controller, 1.5)
+    _wait_motion(controller, 1.1)
 
     # 步骤 2d: 盲抓（全扭矩闭合，不依赖力反馈）
     print("[Step2] Blind grasp")
     _blind_grasp(grasp_driver)
 
-    # 步骤 3: Cartesian 抬升 Z 到 0.15, 再调整关节 2/3
+    # 步骤 3: Cartesian 抬升 Z 到 0.20, 再调整关节 2/3
     print("[Step3] Cartesian lift Z to 0.20")
-    if not controller.move_to_traj(xg, yg, 0.20, rxg, ryg, rzg, duration=2.0):
+    if not controller.move_to_traj(xg, yg, 0.20, rxg, ryg, rzg, duration=0.8):
         print("[Step3] Cartesian lift IK failed")
         return False
-    _wait_motion(controller, 2.0)
+    _wait_motion(controller, 0.9)
 
     print("[Step3] Set joints 2/3 to lift position")
     controller._vlim_override = np.array([1.2, 1.2, 1.2, 0.5, 0.5, 0.5])
@@ -331,7 +341,7 @@ def main() -> int:
     robot_cfg = cfg.get("robot", {})
     ready_cfg = robot_cfg.get(
         "ready_pose",
-        {"x": 0.25, "y": 0.0, "z": 0.35, "roll": 0.0, "pitch": 1.2, "yaw": 0.0, "duration": 3.0},
+        {"x": 0.25, "y": 0.0, "z": 0.35, "roll": 0.0, "pitch": 1.2, "yaw": 0.0, "duration": 1.5},
     )
     cam_cfg = cfg.get("camera", {})
     print(f"=== Camera: {cam_cfg.get('type')} ===")
@@ -535,7 +545,7 @@ def main() -> int:
                 print(f"[G] Joints after lift, before rotate: {rebotarm.arm.get_positions().tolist()}")
                 print(f"[G] joint1 at grasp = {j1_at_grasp:+.3f} -> {side} place (j1={rotate_q[0]:+.3f})")
 
-                controller._vlim_override = np.array([2.0, 2.0, 2.0, 1.6, 1.6, 1.6])
+                controller._vlim_override = np.array([3.0, 2.0, 2.0, 1.6, 1.6, 1.6])
                 controller._q_target[:] = rotate_q
                 t0 = time.perf_counter()
                 while time.perf_counter() - t0 < 8.0:
@@ -552,19 +562,18 @@ def main() -> int:
 
                 controller._vlim_override = None
 
-                # 释放 cube: 用 grasp_driver 方法张开夹爪
+                # 释放 cube
                 print("[G] Open gripper to release cube")
                 grasp_driver.open_gripper()
-                time.sleep(0.3)
 
-                # 闭合夹爪: 用盲抓闭合
-                print("[G] Close gripper")
-                _blind_grasp(grasp_driver, timeout=0.5)
+                # 闭合夹爪
+                #print("[G] Close gripper")
+                #grasp_driver.grasp(timeout=0.3)
 
                 # 回到预备位
                 print("[G] Return arm to ready position")
                 print(f"[G] Joints before reset: {rebotarm.arm.get_positions().tolist()}")
-                duration = float(ready_cfg.get("duration", 3.0))
+                duration = float(ready_cfg.get("duration", 1.5))
                 if not controller.move_to_traj(
                     x=float(ready_cfg.get("x", 0.25)),
                     y=float(ready_cfg.get("y", 0.0)),
@@ -622,7 +631,7 @@ def main() -> int:
                 fps_counter = 0
                 fps_timer = now
 
-            # ---- YOLO 实时检测 (每 infer_every 帧执行一次) ----
+            # ---- YOLO 实时检测 (每 infe.r_every 帧执行一次) ----
             if frame_index % infer_every == 0 or not last_results:
                 last_results = model.predict(
                     color_bgr,

@@ -42,7 +42,7 @@ robot:
     z: 0.3
     roll: 0.0
     pitch: 0.7
-    duration: 3.0
+    duration: 2.0
 
 yolo:
   model_name: "yolov11m-seg-cube.pt"
