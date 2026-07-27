@@ -119,20 +119,32 @@ def _visual_servo_center(
     deadzone_ratio: float = 0.10,
     max_step_rad: float = 0.08,
     gain_p: float = 0.8,
-    max_iter: int = 30,
+    gain_i: float = 0.01,
+    gain_d: float = 0.1,
+    max_iter: int = 40,
 ) -> None:
-    """旋转 base joint (j1) 使目标在画面中居中 — 非阻塞 P 控制。
-    
-    原理: 将画面像素偏差映射为 joint1 旋转角度，逐帧 P 控制逼近。
+    """旋转 base joint (j1) 使目标在画面中居中 — PID 控制。
+
+    原理: 将画面像素偏差映射为 joint1 旋转角度，逐帧 PID 控制逼近。
     为与抓取阶段选目标逻辑一致，每帧只跟踪最左侧的 target。
+    P 项: 快速响应误差；I 项: 消除稳态偏差；D 项: 抑制过冲振荡。
     """
     # ---- 计算画面几何参数 ----
     W = int(cfg.get("camera", {}).get("color_width", 1280))
     cx_center = W / 2.0                                             # 画面水平中心
     deadzone = W * deadzone_ratio                                   # 容忍死区 (像素)
     fov_h_rad = 2.0 * math.atan(W / (2.0 * max(float(K[0, 0]), 1e-6)))  # 水平 FOV (rad)
+    rad_per_px = fov_h_rad / W                                      # 像素→弧度映射系数
 
     print(f"[Servo] W={W} centre={cx_center:.0f} deadzone=±{deadzone:.0f}px  FOVh={math.degrees(fov_h_rad):.1f}deg")
+    print(f"[Servo] PID gains: P={gain_p} I={gain_i} D={gain_d}")
+
+    # ---- PID 状态 ----
+    integral_sum = 0.0      # 积分累积 (带抗饱和)
+    last_error = 0.0        # 上一帧误差，用于微分
+    last_delta = 0.0        # 最后一次有效 PID 步长，用于目标丢失时盲走方向
+    blind_travel = 0.0      # 目标丢失后累计盲走弧度
+    BLIND_LIMIT = 0.4       # 盲走后仍检测不到目标时刹车
 
     for iteration in range(1, max_iter + 1):
         # 1. 取当前帧 → YOLO 检测
@@ -158,11 +170,24 @@ def _visual_servo_center(
                         best_x1 = float(x1)
                         target_cx = float((x1 + x2) / 2.0)
 
-        # 3. 未检测到目标 → 刹车停在当前位置
+        # 3. 未检测到目标 → 沿最后方向盲走，超过限幅则刹车
         if target_cx is None:
-            controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
-            print(f"[Servo] iter {iteration}/{max_iter}: target lost, braking")
+            if blind_travel >= BLIND_LIMIT:
+                controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
+                integral_sum = 0.0
+                last_error = 0.0
+                print(f"[Servo] iter {iteration}/{max_iter}: target lost, blind limit reached (>{BLIND_LIMIT}rad), braking")
+                continue
+            step = 0.05 if last_delta > 0 else -0.05
+            blind_travel += abs(step)
+            target_j1 = float(controller.rebotarm.get_state()[0][0]) + step
+            print(f"[Servo] iter {iteration}/{max_iter}: target lost, blind={blind_travel:.3f}/{BLIND_LIMIT}rad, step={step:+.3f}")
+            controller._q_target[0] = target_j1
+            time.sleep(0.05)
             continue
+
+        # 目标重新出现 → 清零盲走累计
+        blind_travel = 0.0
 
         # 4. 计算像素误差
         error = cx_center - target_cx
@@ -175,11 +200,25 @@ def _visual_servo_center(
             time.sleep(0.3)
             return
 
-        # 6. 像素误差 → 角度步长 (rad/px 映射 + P 增益 + 限幅)
-        rad_per_px = fov_h_rad / W
-        delta = float(np.clip(error * gain_p * rad_per_px, -max_step_rad, max_step_rad))
+        # 6. PID 计算 → 角度步长
+        # P: 比例项
+        p_term = error * gain_p
+
+        # I: 积分项 (抗饱和: 方向反转时清零积分，防止过冲)
+        integral_sum += error
+        if error * last_error < 0 and last_error != 0.0:
+            integral_sum = error  # 过零点时复位积分
+        i_term = integral_sum * gain_i
+
+        # D: 微分项
+        d_term = (error - last_error) * gain_d
+
+        delta = float(np.clip((p_term + i_term + d_term) * rad_per_px, -max_step_rad, max_step_rad))
+        last_error = error
+        last_delta = delta       # 记录方向供盲走使用
+
         target_j1 = float(controller.rebotarm.get_state()[0][0]) + delta
-        print(f"[Servo]   j1 -> {target_j1:+.4f} rad  (step={delta:+.4f})")
+        print(f"[Servo]   j1 -> {target_j1:+.4f} rad  (step={delta:+.4f}  P={p_term*rad_per_px:+.4f} I={i_term*rad_per_px:+.4f} D={d_term*rad_per_px:+.4f})")
         controller._q_target[0] = target_j1
         time.sleep(0.05)
 
