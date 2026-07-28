@@ -122,12 +122,13 @@ def _visual_servo_center(
     gain_i: float = 0.01,
     gain_d: float = 0.1,
     max_iter: int = 40,
-) -> None:
+) -> bool:
     """旋转 base joint (j1) 使目标在画面中居中 — PID 控制。
 
     原理: 将画面像素偏差映射为 joint1 旋转角度，逐帧 PID 控制逼近。
     为与抓取阶段选目标逻辑一致，每帧只跟踪最左侧的 target。
     P 项: 快速响应误差；I 项: 消除稳态偏差；D 项: 抑制过冲振荡。
+    返回 True 表示居中成功，False 表示超时/失败。
     """
     # ---- 计算画面几何参数 ----
     W = int(cfg.get("camera", {}).get("color_width", 1280))
@@ -198,7 +199,7 @@ def _visual_servo_center(
             controller._q_target[0] = float(controller.rebotarm.get_state()[0][0])
             print(f"[Servo] Centred — braking & settling")
             time.sleep(0.3)
-            return
+            return True
 
         # 6. PID 计算 → 角度步长
         # P: 比例项
@@ -222,7 +223,8 @@ def _visual_servo_center(
         controller._q_target[0] = target_j1
         time.sleep(0.03)
 
-    print(f"[Servo] Max iterations reached, proceeding")
+    print(f"[Servo] Max iterations reached, failed to centre")
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -513,7 +515,10 @@ def main() -> int:
                     continue
 
                 # ---- Visual servoing: 旋转 joint1 使目标居中 ----
-                _visual_servo_center(cam, model, yolo_opts, controller, "cube", K, cfg)
+                if not _visual_servo_center(cam, model, yolo_opts, controller, "cube", K, cfg):
+                    print("[G] Servo failed (max iter), returning to ready")
+                    _move_ready(controller, ready_cfg)
+                    continue
 
                 # ---- 居中后拍照进行 3D 抓取估计 ----
                 snap_color, snap_depth = cam.get_frame()
@@ -532,15 +537,17 @@ def main() -> int:
                 )
                 snap_grasps = estimate_grasps(snap_results, snap_depth, K, depth_quantile=depth_quantile)
 
-                # 找出最左侧的 cube（深度 < 0.5m）
+                # 找出距离最近的 cube（欧氏距离 < 0.75m）
                 snap_cube = None
                 for grasp in snap_grasps:
                     if not grasp.is_valid:
                         continue
                     if "cube" in grasp.class_name.lower():
-                        if grasp.position[2] > 0.65:
+                        dist = float(np.linalg.norm(grasp.position))
+                        if dist > 0.75:
+                            print(f"[G] cube ignored (dist={dist:.3f}m > 0.75m)")
                             continue
-                        if snap_cube is None or grasp.position[0] < snap_cube.position[0]:
+                        if snap_cube is None or dist < float(np.linalg.norm(snap_cube.position)):
                             snap_cube = grasp
 
                 if snap_cube is None:
