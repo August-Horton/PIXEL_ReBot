@@ -537,15 +537,15 @@ def main() -> int:
                 )
                 snap_grasps = estimate_grasps(snap_results, snap_depth, K, depth_quantile=depth_quantile)
 
-                # 找出距离最近的 cube（欧氏距离 < 0.75m）
+                # 找出距离最近的 cube（欧氏距离 < 0.65m）
                 snap_cube = None
                 for grasp in snap_grasps:
                     if not grasp.is_valid:
                         continue
                     if "cube" in grasp.class_name.lower():
                         dist = float(np.linalg.norm(grasp.position))
-                        if dist > 0.75:
-                            print(f"[G] cube ignored (dist={dist:.3f}m > 0.75m)")
+                        if dist > 0.65:
+                            print(f"[G] cube ignored (dist={dist:.3f}m > 0.65m)")
                             continue
                         if snap_cube is None or dist < float(np.linalg.norm(snap_cube.position)):
                             snap_cube = grasp
